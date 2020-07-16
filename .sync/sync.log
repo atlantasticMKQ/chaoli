@@ -1,0 +1,6 @@
+﻿platform: Linux 5.7.8-arch1-1 #1 SMP PREEMPT Thu, 09 Jul 2020 16:34:01 +0000 x86_64
+version: 2.7.1.1370
+[20200713 07:29:59.064] ZIP: Can't locate [version] in zip, error -100.
+[20200713 07:29:59.226] saved history: 0 events
+[20200713 07:29:59.227] Torrent session shutdown: done waiting
+[20200713 07:29:59.227] Shutdown. Saving config sync.dat

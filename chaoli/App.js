@@ -11,11 +11,97 @@ import {
     DrawerItemList,
     DrawerItem,
 } from '@react-navigation/drawer';
-import { ListItem, Header, Button, } from 'react-native-elements';
+import { ListItem, Header, Button, Divider} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MathView from 'react-native-math-view';
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
+function MainItem({ title, group, pin, firstpost, published, freshed, atime, length, labels, navigation })
+{
+    return(
+        <View style={{ flex:1, flexDirection: 'column',}}>
+          <View style={{ flex:2, flexDirection: 'row', padding:15,}}>
+            {
+                pin?
+                <Icon
+                  name='anchor'
+                  size={ 20 }
+                />:
+                <View/>
+            }
+            {
+                labels[0]=='featured'?
+                <Icon
+                  name='diamond'
+                  size={ 20 }
+                />:
+                labels[1]=='featured'?
+                <Icon
+                  name='diamond'
+                  size={ 20 }
+                />:
+                <View/>
+            }
+            <Text
+              style={{ fontSize:20, fontWeight:'bold', paddingRight:15}}
+            >  { title }</Text>
+          </View>
+          <View style={{ flex:2, flexDirection: 'row', paddingLeft:15, paddingRight:15}}>
+            <Text style={{ color:'grey' }}>
+              { firstpost
+                .replace(/\[([^\[\]]*)\]/g,"")
+                .substring(0,firstpost.indexOf('\n'))==''?
+                firstpost
+                .replace(/\[([^\[\]]*)\]/g,""):
+                firstpost
+                .replace(/\[([^\[\]]*)\]/g,"")
+                .substring(0,firstpost.indexOf('\n')).lenght<200?
+                firstpost
+                .replace(/\[([^\[\]]*)\]/g,""):
+                firstpost
+                .replace(/\[([^\[\]]*)\]/g,"")
+                .substring(0,firstpost.indexOf('\n'))
+              }</Text>
+          </View>
+          <View style={{ flex:2, flexDirection: 'row'}}>
+            <View style={{ flex:1, flexDirection: 'column', padding:15}}>
+              <Button
+                title={
+                    group=='8'?"技术":
+                    group=='5'?"物理":
+                    group=='6'?"化学":
+                    group=='28'?"公告":
+                    group=='34'?"社科":
+                    group=='4'?"数学":
+                    group=='43'?"辑录":
+                    group=='40'?"语言":
+                    group
+                }
+                type='outline'
+                buttonStyle={
+                    group=='8'?"blue":
+                    group=='5'?"green":
+                    group=='6'?"red":
+                    group=='28'?"grey":
+                    group=='34'?"grey":
+                    group=='4'?"yellow":
+                    group=='43'?"black":
+                    group=='40'?"pule":
+                    group
+                }
+              />
+            </View>
+            <View style={{ flex:3, flexDirection: 'column', padding:15}}>
+              <Text>{ published } 发表了本帖</Text>
+              <Text>{ freshed } 更新于 { atime }</Text>
+            </View>
+            <View style={{ flex:1, flexDirection: 'column', paddingTop:15}}>
+              <Text style={{ fontSize:25, color:'grey'}}>{ length }</Text>
+            </View>
+          </View>
+        </View>
+    );
+}
 function HomeScreen({ navigation })
 {
     const [isLoading, setLoading] = React.useState(true);
@@ -27,28 +113,26 @@ function HomeScreen({ navigation })
             .catch((error) => console.error(error))
             .finally(() => setLoading(false));
     }, []);
+    const renderItem = ({ item, navigation, separators }) => (
+        <MainItem
+          title={ item.title }
+          group={ item.channelId }
+          pin={ item.sticky=="1" }
+          firstpost={ item.firstPost }
+          published={ item.startMember }
+          freshed={ item.lastPostMember }
+          atime={ item.lastPostTime }
+          length={ item.countPosts }
+          labels={ item.labels }
+          navigation={ navigation }
+        />
+    );
+    const itemSeparator = () => (
+      <Divider style={{ backgroundColor: 'grey' }} />  
+    );
     return (
         <>
-          
-          <Header
-            placement="left"
-            leftComponent={
-                <Button
-                  buttonStyle = {{ flex:1, width:50}}
-                  icon={
-                      <Icon
-                        name="menu"
-                        size={15}
-                        color="white"
-                      />
-                  }
-                  onPress = {() => navigation.dispatch(DrawerActions.openDrawer()) }
-                />
-            }
-            centerComponent={{ text: 'Chaoli', style: { color: '#fff' } }}
-          />
-
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <View>
             {isLoading ? <ActivityIndicator/> : (
                 <FlatList
                   onRefresh = { ()=> {
@@ -59,64 +143,70 @@ function HomeScreen({ navigation })
                           .catch((error) => console.error(error))
                           .finally(() => setLoading(false));
                   }}
+                  keyExtractor={item => item.conversationId}
                   refreshing = { isLoading }
-                  ItemSeparatorComponent={
-                      Platform.OS !== 'android' &&
-                          (({ highlighted }) => (
-                            <View
-                              style={[
-                                  //style.separator,
-                                  highlighted && { marginLeft: 0 }
-                              ]}
-                            />
-                          ))
-                  }
                   data={data}
-                //keyExtractor={({ id }, index) => id}
-                  renderItem={({ item, index, separators }) => (
-                  <TouchableHighlight
-                      //onPress={() => this._onPress(item)}
-                      onShowUnderlay={separators.highlight}
-                    onHideUnderlay={separators.unhighlight}>
-                    <View style={{ backgroundColor: 'white', flex:1, height:300 }}>
-                      <Text style={{
-                          marginVertical: 8,
-                          marginHorizontal: 20,
-                          fontSize: 20,
-                          fontWeight: "bold"
-                      }}>
-                        {item.title}
-                      </Text>
-                      <Text style={{
-                          marginHorizontal: 8,
-                      }}>
-                        { item.firstPost.replace(/\[([^\[\]]*)\]/g,"").replace(/\n(\n)*( )*(\n)*\n/g,"").slice(0,150) }...
-                      </Text>
-                      <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', }}>
-                        <Text style={{
-                            marginVertical: 8,
-                            textAlign: "left",
-                            fontWeight: "bold"
-                        }}>
-                          楼主:{ item.startMember } 
-                        </Text>
-                        <Text style={{
-                            marginVertical: 8,
-                            textAlign: "right",
-                            fontWeight: "bold"
-                        }}>
-                          更新:{ item.lastPostMember }
-                        </Text>
-                      </View>
-                    </View>
-                  </TouchableHighlight>
-                  )}
+                  renderItem={ renderItem }
+                  ItemSeparatorComponent={ itemSeparator }
                 />
             )}
           </View>
         </>
     );
 }
+function ItemScreen({ navigation, item })
+{
+    const [isLoading, setLoading] = React.useState(true);
+    const [data, setData] = React.useState([]);
+    React.useEffect(() => {
+        fetch('https://chaoli.club/index.php/conversations/index.json/'+item.conversationId)
+            .then((response) => response.json())
+            .then((json) => setData(json.results))
+            .catch((error) => console.error(error))
+            .finally(() => setLoading(false));
+    }, []);
+    const renderItem = ({ item, navigation, separators }) => (
+        <MainItem
+          title={ item.title }
+          group={ item.channelId }
+          pin={ item.sticky=="1" }
+          firstpost={ item.firstPost }
+          published={ item.startMember }
+          freshed={ item.lastPostMember }
+          atime={ item.lastPostTime }
+          length={ item.countPosts }
+          labels={ item.labels }
+          navigation={ navigation }
+            />
+    );
+    const itemSeparator = () => (
+      <Divider style={{ backgroundColor: 'grey' }} />  
+    );
+    return (
+        <>
+          <View>
+            {isLoading ? <ActivityIndicator/> : (
+                <FlatList
+                  onRefresh = { ()=> {
+                      setLoading(true);
+                      fetch('https://chaoli.club/index.php/conversations/index.json')
+                          .then((response) => response.json())
+                          .then((json) => setData(json.results))
+                          .catch((error) => console.error(error))
+                          .finally(() => setLoading(false));
+                  }}
+                  keyExtractor={item => item.conversationId}
+                  refreshing = { isLoading }
+                  data={data}
+                  renderItem={ renderItem }
+                  ItemSeparatorComponent={ itemSeparator }
+                />
+            )}
+          </View>
+        </>
+    );
+}
+
 function SettingScreen({ navigation })
 {
     return (
@@ -129,19 +219,26 @@ export default function App()
 {
     return(
         <NavigationContainer>
-          <Drawer.Navigator initialRouteName="Home">
-            <Drawer.Screen
+          <Stack.Navigator initialRouteName="Home">
+            <Stack.Screen
               name = "Home"
               component = { HomeScreen }
               options = {{
                   headerTitle: 'Chaoli',
               }}
             />
-            <Drawer.Screen
+            <Stack.Screen
+              name = "Item"
+              component = { ItemScreen }
+              options = {{
+                  headerTitle: 'Item',
+              }}
+            />
+            <Stack.Screen
               name = "Setting"
               component = { SettingScreen }
             />
-          </Drawer.Navigator>
+          </Stack.Navigator>
         </NavigationContainer>
     );
 }

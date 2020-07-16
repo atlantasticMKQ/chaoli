@@ -1,0 +1,31 @@
+<View style={{ backgroundColor: 'white', flex:1, height:300 }}>
+                          <Text style={{
+                              marginVertical: 8,
+                              marginHorizontal: 20,
+                              fontSize: 20,
+                              fontWeight: "bold"
+                          }}>
+                            {item.title}
+                          </Text>
+                          <Text style={{
+                              marginHorizontal: 8,
+                          }}>
+                            { item.firstPost.replace(/\[([^\[\]]*)\]/g,"").replace(/\n(\n)*( )*(\n)*\n/g,"").slice(0,150) }...
+                          </Text>
+                          <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', }}>
+                            <Text style={{
+                                marginVertical: 8,
+                                textAlign: "left",
+                                fontWeight: "bold"
+                            }}>
+                              楼主:{ item.startMember } 
+                            </Text>
+                            <Text style={{
+                                marginVertical: 8,
+                                textAlign: "right",
+                                fontWeight: "bold"
+                            }}>
+                              更新:{ item.lastPostMember }
+                            </Text>
+                          </View>
+                        </View>
